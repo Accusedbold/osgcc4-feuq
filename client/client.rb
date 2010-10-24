@@ -1,16 +1,27 @@
 Shoes.setup do
-  gem "httparty"
+  gem "mechanize"
 end
 
-require "httparty"
+class Encoding
+  US_ASCII = "US-ASCII"
+end
+require "mechanize"
 require 'json'
 
 Shoes.app :height => 730, :width => 1296 do
 
+  name = ask "What is the name of your character?"
+  alert "Hello " + name
   require '../shared/player'
 
-  @player = Player.new
+  @player = Player.new :name => name
   
+  agent = Mechanize::Mechanize.new
+
+   response = agent.post('http://localhost:9292/register_name', :name => name.force_encoding("UTF-8"))
+   parsed_response = JSON.parse(response.body)
+   alert parsed_response["player_list"]
+   
   @player.y_pos = 360
 
   @board = []
